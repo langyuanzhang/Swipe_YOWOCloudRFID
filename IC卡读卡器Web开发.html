@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+  <title>IC卡读卡器Web开发</title>
+
+  <script language="javascript" src="./YOWOCloudRFIDReader.js"></script>
+  <script language="javascript" src="./YOWOReaderBase.js"></script>
+  <script language="javascript" type="text/javascript">
+    //循环定时
+    setInterval(function () {
+      console.log("ssss")
+      ReadBlock()
+    }, 3000);
+
+    
+    // rfidreader.Beep(2,1,3); //蜂鸣
+
+    rfidreader.onResult(function (resultdata) {
+      switch (resultdata.FunctionID) {
+        case 14:
+          document.getElementById("CloudReaderVer").value = resultdata.strData;
+          break;
+        case 5:
+          document.getElementById("CardNo").value = resultdata.CardNo;
+          if (resultdata.Result > 0) {
+            document.getElementById("DataRead").value = resultdata.strData;
+          } else {
+            document.getElementById("DataRead").value = GetErrStr(
+              resultdata.Result
+            );
+          }
+          break;
+        case 6:
+          document.getElementById("CardNo").value = resultdata.CardNo;
+          if (resultdata.Result > 0) {
+            alert("写入成功，写入16进制数据：" + resultdata.strData);
+          } else {
+            alert("写入失败，错误：" + GetErrStr(resultdata.Result));
+          }
+          break;
+      }
+    });
+
+    function ReadBlock() {
+      var BlockID;
+      var Key;
+
+      BlockID = document.getElementById("BlockIDRead").value;
+      Key = document.getElementById("KeyRead").value;
+      rfidreader.KeyMode = 0;
+      rfidreader.KeyStringMode = 0;
+      rfidreader.KeyString = Key;
+      rfidreader.Repeat = 0;
+      rfidreader.M1ReadBlock(BlockID, 0);
+    }
+
+    function WriteBlock() {
+      var BlockID;
+      var Key;
+      var Data;
+
+      BlockID = document.getElementById("BlockIDWrite").value;
+      Key = document.getElementById("KeyWrite").value;
+      Data = document.getElementById("DataWrite").value;
+      rfidreader.KeyMode = 0;
+      rfidreader.KeyStringMode = 0;
+      rfidreader.KeyString = Key;
+      rfidreader.Repeat = 0;
+      rfidreader.M1WriteBlock(BlockID, Data, 0);
+    }
+  </script>
+
+</head>
+
+<body>
+  <div class="maintext">
+    <table width="650" border="0" cellpadding="0" cellspacing="0">
+      <!--DWLayoutTable-->
+      <tbody>
+        <tr>
+          <td width="150" height="32" valign="top">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+              <!--DWLayoutTable-->
+              <tbody>
+                <tr>
+                  <td width="150" height="32" align="center" valign="middle" bgcolor="#CCCCCC">
+                    <!--DWLayoutEmptyCell-->&nbsp;
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td width="500" valign="top">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+              <!--DWLayoutTable-->
+              <tbody>
+                <tr>
+                  <td width="500" height="32" align="left" valign="middle" bgcolor="#CCCCCC">
+                    卡号:
+                    <input name="CardNo" type="text" id="CardNo" size="10" maxlength="8" readonly="" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td height="111" align="center" valign="middle" bgcolor="#99CC66">
+            <input type="button" name="ReadCard1" value="读  卡" onclick="ReadBlock()" />
+          </td>
+          <td valign="middle" bgcolor="#99CC66">
+            <p>
+              块号:<input name="BlockIDRead" type="text" id="BlockIDRead" value="4" size="4" maxlength="2" />
+              (S50卡,范围0-63,10进制)
+            </p>
+            <p>
+              密钥:
+              <input name="KeyRead" type="text" id="KeyRead" value="FFFFFFFFFFFF" size="15" maxlength="12" />
+              (6个字节,16进制)(默认使用A密钥)
+            </p>
+            <p>
+              数据:<input name="DataRead" type="text" id="DataRead" size="35" maxlength="32" />
+              (16字节)
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td height="137" align="center" valign="middle" bgcolor="#FFCC66">
+            <input type="button" name="WriteCard1" value="写  卡" onclick="WriteBlock()" />
+          </td>
+          <td align="left" valign="middle" bgcolor="#FFCC66">
+            <p>
+              块号:<input name="BlockIDWrite" type="text" id="BlockIDWrite" value="4" size="4" maxlength="2" />
+              (S50卡,范围0-63,10进制,注意秘钥块不要随意写)
+            </p>
+            <p>
+              密钥:
+              <input name="KeyWrite" type="text" id="KeyWrite" value="FFFFFFFFFFFF" size="15" maxlength="12" />
+              (6个字节,16进制) (默认使用A密钥)
+            </p>
+            <p>
+              数据:<input name="DataWrite" type="text" id="DataWrite" value="11223344556677889900AABBCCDDEEFF" size="35"
+                maxlength="32" />
+              (16字节)
+            </p>
+          </td>
+        </tr>
+        <tr align="right" valign="middle" bgcolor="#00CCFF">
+          <td height="64" colspan="2" valign="middle">
+            <p>&nbsp;</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+
+</body>
+
+</html>
